@@ -1,5 +1,5 @@
 <server description="Sample Open Liberty server">
-
+<!-- add comment to trigger builds
   <featureManager>
     <feature>restfulWS-3.1</feature>
     <feature>jsonb-3.0</feature>
@@ -7,16 +7,109 @@
     <feature>mpHealth-4.0</feature>
     <feature>mpConfig-3.1</feature>
   </featureManager>
-
-  <applicationManager autoExpand="true" />
-
-  <mpMetrics authentication="false" />
+ -->
+  <featureManager>
+      <feature>jakartaee-10.0</feature>	   
+      <feature>openidConnectClient-1.0</feature>
+      <feature>openidConnectServer-1.0</feature>
+      <feature>socialLogin-1.0</feature>
+  </featureManager>
 
   <variable name="default.http.port" defaultValue="9080"/>
   <variable name="default.https.port" defaultValue="9443"/>
   <variable name="app.context.root" defaultValue="/"/>
 
   <httpEndpoint host="*" httpPort="${default.http.port}" httpsPort="${default.https.port}" id="defaultHttpEndpoint"/>
+	
+    <basicRegistry id="basic" realm="PentestRealm">
+        <user name="adminUser" password="notAPwd4Admin"/>
+    </basicRegistry>
+    
+    <administrator-role>
+        <user>adminUser</user>
+    </administrator-role>
+
+   <openidConnectClient 
+      id="${clientID}" 
+      clientId="${clientID}" 
+      clientSecret="${clientSecret}" 
+      mapIdentityToRegistryUser="true" 
+      discoveryEndpointUrl="${OIDC_DISCOVERY_HOST}/oidc/endpoint/OidcProvider/.well-known/openid-configuration" 
+      userInfoEndpointEnabled="true" />
+      <!-- authFilterRef="simpleServletFilter" -->
+      <!-- clientId="client01"  -->	
+      <!-- clientSecret="notAPwd4Client01" -->	
+	
+  <!--
+    <authFilter id="simpleServletFilter">
+        <requestUrl id="simpleServletUrl" matchType="contains" urlPattern="/SimpleServlet"/>
+    </authFilter>
+  -->
+
+     <openidConnectProvider 
+	id="OidcProvider" 
+	oauthProviderRef="OAuthProvider" 
+	keyStoreRef="defaultKeyStore" 
+        signatureAlgorithm="RS256" 
+	jwkEnabled="true"/>
+	
+      <oauthProvider 
+	 id="OAuthProvider" 
+	 autoAuthorizeParam="autoauthz" 
+	 tokenFormat="mpjwt" 
+	 passwordGrantRequiresAppPassword="true" 
+	 internalClientId="client_internal"  
+	 internalClientSecret="notAPwd4ClientInt" 
+	 appPasswordLifetime="30d">           
+
+            <client 
+		id="${clientID}" 
+		name="${clientID}" 
+		secret="${clientSecret}" 
+		displayname="${clientID}" 
+		scope="openid profile email ">
+                <redirect>${OIDC_DISCOVERY_HOST}/oidcclient/redirect/${clientID}</redirect>
+            </client>
+	      
+            <autoAuthorizeClient>${clientID}</autoAuthorizeClient>
+           <databaseStore dataSourceRef="OAuthDataSource" />                   
+    </oauthProvider>
+	
+    <oauth-roles>
+       <authenticated>
+           <user name="adminUser"/>
+           <special-subject type="ALL_AUTHENTICATED_USERS"/>
+       </authenticated>
+       <clientManager>
+            <user name="adminUser" />
+       </clientManager>
+    </oauth-roles>
+	
+    <!-- DB2 JDBC driver -->
+    <include location="${shared.resource.dir}/ease/db2/jdbc4.xml"/>
+	      
+     <!--jdbc4.xml
+	<jdbcDriver id="ease.db2jcc4" libraryRef="ease.jdbc4.lib"/>
+        <library id="ease.jdbc4.lib"> 
+            <fileset dir="${shared.resource.dir}/ease/db2" includes="db2jcc4.jar"/>
+        </library>
+      --> 
+     
+    <dataSource id="OAuthDataSource" jndiName="jdbc/db2cloud"  jdbcDriverRef="ease.db2jcc4">
+       <properties.db2.jcc serverName="${db2HostName}"
+                      portNumber="${db2Port}"
+                      databaseName="${dbName}"
+                      sslConnection="true"
+                      user="${db2UserName}"
+                      password="${Db2Credentials}"/>
+    </dataSource>
+	      
+  <applicationManager autoExpand="true" />
+
+  <mpMetrics authentication="false" />
 
   <webApplication location="io.openliberty.sample.getting.started.war" contextRoot="${app.context.root}"/>
+ 
+  <logging maxFileSize="100" maxFiles="20" traceSpecification="*=info:com.ibm.ws.security.*=all:com.ibm.ws.webcontainer.security.*=all"/>   
+	
 </server>
