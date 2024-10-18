@@ -30,7 +30,7 @@
     </administrator-role>
 
    <openidConnectClient 
-      id="{clientID}" 
+      id="${clientID}" 
       clientId="${clientID}" 
       clientSecret="${clientSecret}" 
       mapIdentityToRegistryUser="true" 
