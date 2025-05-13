@@ -10,6 +10,7 @@
  -->
   <featureManager>
       <feature>jakartaee-10.0</feature>	   
+      <feature>adminCenter-1.0</feature>	   
       <feature>openidConnectClient-1.0</feature>
       <feature>openidConnectServer-1.0</feature>
       <feature>socialLogin-1.0</feature>
@@ -30,8 +31,8 @@
     </administrator-role>
 
    <openidConnectClient 
-      id="${clientID}" 
-      clientId="${clientID}" 
+      id="client01" 
+      clientId="client01" 
       clientSecret="${clientSecret}" 
       mapIdentityToRegistryUser="true" 
       discoveryEndpointUrl="${OIDC_DISCOVERY_HOST}/oidc/endpoint/OidcProvider/.well-known/openid-configuration" 
@@ -63,10 +64,10 @@
 	 appPasswordLifetime="30d">           
 
             <client 
-		id="${clientID}" 
-		name="${clientID}" 
+		id="client01" 
+		name="client01" 
 		secret="${clientSecret}" 
-		displayname="${clientID}" 
+		displayname="client01" 
 		scope="openid profile email ">
                 <redirect>${OIDC_DISCOVERY_HOST}/oidcclient/redirect/${clientID}</redirect>
             </client>
